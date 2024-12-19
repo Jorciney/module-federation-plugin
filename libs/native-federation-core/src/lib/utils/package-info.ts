@@ -300,7 +300,15 @@ export function _getPackageInfo(
       esm: true,
     };
   }
-
+  cand = secondaryPgkPath + '.mjs';
+  if (fs.existsSync(cand)) {
+    return {
+      entryPoint: cand,
+      packageName,
+      version,
+      esm,
+    };
+  }
   cand = path.join(secondaryPgkPath, 'index.mjs');
   if (fs.existsSync(cand)) {
     return {

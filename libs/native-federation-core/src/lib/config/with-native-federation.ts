@@ -49,6 +49,7 @@ function normalizeShared(
           strictVersion: shared[cur].strictVersion ?? false,
           version: shared[cur].version,
           includeSecondaries: shared[cur].includeSecondaries,
+          import: shared[cur].import
         },
       }),
       {}
