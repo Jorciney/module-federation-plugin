@@ -9,6 +9,24 @@ import { copySrcMapIfExists } from '../utils/copy-src-map-if-exists';
 import { logger } from '../utils/logger';
 import { normalize } from '../utils/normalize';
 
+function getPackageInfoForImport(
+  config: NormalizedFederationConfig,
+  packageName: string,
+  libEntryPoint: string,
+  fedOptions: FederationOptions
+) {
+  const version = config.shared?.[packageName as keyof NormalizedSharedConfig].requiredVersion || '';
+  logger.info(`Bundling shared package: ${packageName} imported from ${libEntryPoint}.`);
+  logger.notice(`Ensure the required version (${version}) for ${packageName} matches the version in the shell (tcp.angular)\n
+  If the versions are the same, in the MFE and in the shell, this package will be treated as a singleton.`);
+  return {
+    packageName: packageName,
+    entryPoint: path.join(fedOptions.workspaceRoot, libEntryPoint || ''),
+    version: version,
+    esm: true,
+  };
+}
+
 export async function bundleShared(
   config: NormalizedFederationConfig,
   fedOptions: FederationOptions,
@@ -28,24 +46,9 @@ export async function bundleShared(
   const packageInfos = Object.keys(config.shared)
     // .filter((packageName) => !isInSkipList(packageName, PREPARED_DEFAULT_SKIP_LIST))
     .map((packageName) => {
-      const libEntryPoint =
-        config.shared?.[packageName as keyof NormalizedSharedConfig].import;
-      const version =
-        config.shared?.[packageName as keyof NormalizedSharedConfig]
-          .requiredVersion || '';
+      const libEntryPoint = config.shared?.[packageName as keyof NormalizedSharedConfig].import;
       if (libEntryPoint) {
-        logger.info(
-          `Bundling shared package: ${packageName} imported from ${libEntryPoint}.`
-        );
-        logger.notice(
-          `Ensure the required version (${version}) for ${packageName} matches the version in the shell (tcp.angular)\nIf the versions are the same, in the MFE and in the shell, this package will be treated as a singleton.`
-        );
-        return {
-          packageName: packageName,
-          entryPoint: path.join(fedOptions.workspaceRoot, libEntryPoint || ''),
-          version: version,
-          esm: true,
-        };
+        return getPackageInfoForImport(config, packageName, libEntryPoint, fedOptions);
       }
       return getPackageInfo(packageName, folder);
     })
