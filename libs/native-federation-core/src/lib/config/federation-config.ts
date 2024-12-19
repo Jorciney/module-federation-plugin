@@ -7,6 +7,7 @@ export interface SharedConfig {
   requiredVersion?: string;
   version?: string;
   includeSecondaries?: boolean;
+  import?: string;
 }
 
 export interface FederationConfig {
@@ -23,6 +24,7 @@ export interface NormalizedSharedConfig {
   requiredVersion: string;
   version?: string;
   includeSecondaries?: boolean;
+  import?: string;
 }
 
 export interface NormalizedFederationConfig {
